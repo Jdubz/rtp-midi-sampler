@@ -1,14 +1,12 @@
 
-
 from pymidi import server
 
 class RTPServer():
-  def __init__(self):
-    self.server = server.Server([('0.0.0.0', 5051)])
-    self.server.add_handler(self.Handler())
-
-  def start(self):
-    self.server.serve_forever()
+  def __init__(self, host, port):
+    midi_server = server.Server([(host, port)])
+    midi_server.add_handler(RTPHandler())
+    print('rtp server starting on '+host+':'+str(port))
+    midi_server.serve_forever()
 
 class RTPHandler(server.Handler):
   def on_peer_connected(self, peer):
@@ -22,4 +20,5 @@ class RTPHandler(server.Handler):
       if command.command == 'note_on':
         key = command.params.key
         velocity = command.params.velocity
-        print('Someone hit the key {} with velocity {}'.format(key, velocity))
+        channel = command.channel
+        print('Note: {} Velocity: {} Channel: {}'.format(key, velocity, channel))

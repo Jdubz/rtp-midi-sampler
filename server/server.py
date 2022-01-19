@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
 from flask import Flask
-
 from rtpserver import RTPServer
 
-midiServer = RTPServer()
-midiServer.start()
+RTP_HOST = '0.0.0.0'
+RTP_PORT = 5051
 
 app = Flask(__name__, static_folder='../build', static_url_path='/')
 
@@ -16,3 +15,5 @@ def index():
 @app.route('/audiodevice', methods=['GET', 'POST'])
 def audiodevices():
     print('audioooo')
+
+RTPServer(RTP_HOST, RTP_PORT)
