@@ -1,6 +1,7 @@
 import os
 from werkzeug.utils import secure_filename
 
+from flask import jsonify
 UPLOAD_FOLDER = '../samples'
 
 def allowed_file(filename):
@@ -15,7 +16,7 @@ def upload(request):
     return 'success'
 
 def get_files():
-    return os.listdir(UPLOAD_FOLDER)
+    return jsonify(os.listdir(UPLOAD_FOLDER))
 
 def load_files():
     print('loading')

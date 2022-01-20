@@ -21,7 +21,7 @@ def index():
 def audiodevices():
     return get_devices()
 
-@app.route('/files', methods=['GET', 'POST'])
+@app.route('/file', methods=['GET', 'POST'])
 def file():
     if request.method == 'POST':
         return upload(request)
