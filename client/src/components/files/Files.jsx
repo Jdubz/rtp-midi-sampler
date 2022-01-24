@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
-
+import Uploader from './Uploader';
 import FileList from './FilesList';
 
 export default function Files() {
   const [files, setFiles] = useState([]);
 
   const getFiles = async () => {
-    const files = await axios.get('http://192.168.86.250:8080/file');
+    const files = await axios.get('http://192.168.86.25:8080/file');
     setFiles(files.data);
   }
 
@@ -19,11 +17,9 @@ export default function Files() {
   }, [])
 
   return(
-    <Paper elevation={2} sx={{ padding: '1rem', margin: '1rem 0' }}>
-      <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          Files
-        </Typography>
+    <>      
       <FileList files={files} />
-    </Paper>
+      <Uploader setFiles={setFiles}/>
+    </>
   );
 }

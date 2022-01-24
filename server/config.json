@@ -1,0 +1,8 @@
+{
+    "AUDIO_DEVICE_ID": 2,
+    "HOST": "0.0.0.0",
+    "RTP_PORT": 5051,
+    "REST_PORT": 8080,
+    "SAMPLES_FOLDER": "../samples",
+    "DEBUG": true
+}
