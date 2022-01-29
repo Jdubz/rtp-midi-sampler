@@ -23,7 +23,7 @@ class Audio():
     def start(self):
         try:
             stream = sd.OutputStream(device=self.config['AUDIO_DEVICE_ID'], blocksize=512, samplerate=44100, channels=2, dtype='int16', callback=self.AudioCallback)
-            # stream.start()
+            stream.start()
             logger.info('Opened audio device #%i' % self.config['AUDIO_DEVICE_ID'])
         except:
             logger.info('Invalid audio device #%i' % self.config['AUDIO_DEVICE_ID'])

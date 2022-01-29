@@ -20,8 +20,8 @@ storage = Storage()
 audio = Audio(globalvolume, storage.config)
 audio.start()
 
-midi_server = threading.Thread(target=start_server, args=(storage.config["HOST"], storage.config["RTP_PORT"], parse), daemon=True)
-midi_server.start()
+# midi_server = threading.Thread(target=start_server, args=(storage.config["HOST"], storage.config["RTP_PORT"], parse), daemon=True)
+# midi_server.start()
 
 app = Flask(__name__, static_folder='../build', static_url_path='/')
 CORS(app)
@@ -48,5 +48,11 @@ def config():
     # if request.method == 'Post':
     #     storage.config
 
-# if __name__ == "__main__":
-#     app.run(host=storage.config["HOST"], port=storage.config["REST_PORT"], debug=storage.config["DEBUG"])
+def start_flask(host, port, debug):
+    app.run(host=host, port=port, debug=debug)
+
+if __name__ == "__main__":
+    flask_server = threading.Thread(target=start_flask, args=(storage.config["HOST"], storage.config["REST_PORT"], storage.config["DEBUG"]), daemon=True)
+    flask_server.start()
+
+start_server(storage.config["HOST"], storage.config["RTP_PORT"], parse)

@@ -11,7 +11,7 @@ setup(
   author='Josh Wentworth',
   author_email='contact@joshwentworth.com',
   url='https://github.com/Jdubz/rtp-midi-sampler.git',
-  packages=['flask', 'flask_cors', 'sounddevice', 'pymidi', 'pygame.midi', 'cython', 'numpy'],
+  install_requires=['flask', 'flask_cors', 'sounddevice', 'pymidi', 'cython', 'numpy'],
   ext_modules = cythonize("samplerbox_audio.pyx"),
   include_dirs=[numpy.get_include()]
 )
