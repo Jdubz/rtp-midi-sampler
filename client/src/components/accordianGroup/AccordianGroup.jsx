@@ -16,7 +16,7 @@ export default function AccordianGroup({ items }) {
     return (
       <Box>
         {items.map(item =>
-          <Accordion expanded={expanded === item.title} onChange={handleChange(item.title)}>
+          <Accordion expanded={expanded === item.title} onChange={handleChange(item.title)} key={item.title}>
             <AccordionSummary
                   expandIcon={<ExpandMoreIcon />}
               >

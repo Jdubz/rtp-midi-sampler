@@ -8,7 +8,9 @@ export default function Files() {
   const [files, setFiles] = useState([]);
 
   const getFiles = async () => {
-    const files = await axios.get('http://192.168.86.25:8080/file');
+    const files = await axios.get(
+      (process.env.NODE_ENV === 'development' ? process.env.REACT_APP_SERVER_URL : '')
+    + '/file');
     setFiles(files.data);
   }
 

@@ -23,7 +23,7 @@ export default function Uploader({ setFiles }) {
     }
     const uploadResponse = await axios({
       method: 'POST',
-      url: 'http://192.168.86.250:8080/file',
+      url: (process.env.NODE_ENV === 'development' ? process.env.REACT_APP_SERVER_URL : '') + '/file',
       data: formData,
       headers: {
         "Content-Type": "multipart/form-data"
