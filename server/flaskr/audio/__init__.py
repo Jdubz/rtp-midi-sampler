@@ -20,15 +20,6 @@ class Audio():
     def get_devices():
         return jsonify(sd.query_devices())
 
-    def start(self):
-        try:
-            stream = sd.OutputStream(device=self.config['AUDIO_DEVICE_ID'], blocksize=512, samplerate=44100, channels=2, dtype='int16', callback=self.AudioCallback)
-            stream.start()
-            logger.info('Opened audio device #%i' % self.config['AUDIO_DEVICE_ID'])
-        except:
-            logger.info('Invalid audio device #%i' % self.config['AUDIO_DEVICE_ID'])
-            exit(1)
-
     def AudioCallback(self, outdata, frame_count, time_info, status):
         MAX_POLYPHONY = 80
         rmlist = []
@@ -41,3 +32,15 @@ class Audio():
                 pass
         b *= self.global_volume
         outdata[:] = b.reshape(outdata.shape)
+
+    async def start(self):
+        try:
+            stream = sd.OutputStream(device=self.config['AUDIO_DEVICE_ID'], blocksize=512, samplerate=44100, channels=2,  dtype='int16', callback=self.AudioCallback)
+            with stream:
+                await event.wait()
+            logger.info('Opened audio device #%i' % self.config['AUDIO_DEVICE_ID'])
+        except:
+            logger.info('Invalid audio device #%i' % self.config['AUDIO_DEVICE_ID'])
+            exit(1)
+
+
