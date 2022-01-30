@@ -33,7 +33,7 @@ class Audio():
         MAX_POLYPHONY = 80
         rmlist = []
         self.playingsounds = self.playingsounds[-MAX_POLYPHONY:]
-        b = samplerbox_audio.mixaudiobuffers(self.playingsounds, rmlist, frame_count, self.FADEOUT, self.FADEOUTLENGTH, self.SPEED)
+        b = mixaudiobuffers(self.playingsounds, rmlist, frame_count, self.FADEOUT, self.FADEOUTLENGTH, self.SPEED)
         for e in rmlist:
             try:
                 self.playingsounds.remove(e)

@@ -4,6 +4,8 @@ from flask import Flask, request
 from flask_cors import CORS
 import threading
 import logging
+import pyximport
+pyximport.install(setup_args={"script_args" : ["--verbose"]})
 
 from midi.rtp_server import start_server
 from midi import parse
