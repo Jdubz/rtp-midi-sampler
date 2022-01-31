@@ -3,6 +3,7 @@ from flask import jsonify
 import numpy
 import samplerbox_audio
 import logging
+import threading
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,7 @@ class Audio():
         MAX_POLYPHONY = 80
         rmlist = []
         self.playingsounds = self.playingsounds[-MAX_POLYPHONY:]
-        b = mixaudiobuffers(self.playingsounds, rmlist, frame_count, self.FADEOUT, self.FADEOUTLENGTH, self.SPEED)
+        b = samplerbox_audio.mixaudiobuffers(self.playingsounds, rmlist, frame_count, self.FADEOUT, self.FADEOUTLENGTH, self.SPEED)
         for e in rmlist:
             try:
                 self.playingsounds.remove(e)
@@ -34,13 +35,12 @@ class Audio():
         outdata[:] = b.reshape(outdata.shape)
 
     async def start(self):
+        event = threading.Event()
         try:
             stream = sd.OutputStream(device=self.config['AUDIO_DEVICE_ID'], blocksize=512, samplerate=44100, channels=2,  dtype='int16', callback=self.AudioCallback)
             with stream:
                 await event.wait()
             logger.info('Opened audio device #%i' % self.config['AUDIO_DEVICE_ID'])
-        except:
-            logger.info('Invalid audio device #%i' % self.config['AUDIO_DEVICE_ID'])
+        except Exception as e:
+            logger.warn(e)
             exit(1)
-
-
