@@ -22,4 +22,4 @@ class RTPHandler(server.Handler):
   def on_midi_commands(self, peer, command_list):
     for command in command_list:
       self.callback(command)
-      logger.info(command)
+

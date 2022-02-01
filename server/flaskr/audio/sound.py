@@ -1,5 +1,8 @@
-class PlayingSound:
+import numpy
+import samplerbox_audio
+from audio.waveread import waveread
 
+class PlayingSound:
     def __init__(self, sound, note):
         self.sound = sound
         self.pos = 0
@@ -10,15 +13,13 @@ class PlayingSound:
     def fadeout(self, i):
         self.isfadeout = True
 
-    def stop(self):
+    def stop(self, playingsounds):
         try:
             playingsounds.remove(self)
         except:
             pass
 
-
 class Sound:
-
     def __init__(self, filename, midinote, velocity):
         wf = waveread(filename)
         self.fname = filename
@@ -35,7 +36,7 @@ class Sound:
 
         wf.close()
 
-    def play(self, note):
+    def play(self, note, playingsounds):
         snd = PlayingSound(self, note)
         playingsounds.append(snd)
         return snd

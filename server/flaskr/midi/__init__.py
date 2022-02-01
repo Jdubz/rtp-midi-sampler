@@ -1,49 +1,50 @@
 import logging
-
 logger = logging.getLogger(__name__)
 
-def parse(message):
-    logger.info(message)
+class Midi():
+    def __init__(self, samples):
+        self.playingnotes = {}
+        self.sustainplayingnotes = []
+        self.sustain = False
+        self.samples = samples
 
-def MidiCallback(message, time_stamp):
-    global playingnotes, sustain, sustainplayingnotes
-    global preset
-    messagetype = message[0] >> 4
-    messagechannel = (message[0] & 15) + 1
-    note = message[1] if len(message) > 1 else None
-    midinote = note
-    velocity = message[2] if len(message) > 2 else None
+    def send_command(channel, command, note, velocity=127):
 
-    if messagetype == 9 and velocity == 0:
-        messagetype = 8
 
-    if messagetype == 9:    # Note on
-        midinote += globaltranspose
-        try:
-            playingnotes.setdefault(midinote, []).append(samples[midinote, velocity].play(midinote))
-        except:
-            pass
+    def rtpmidi_callback(self, command):
+        print(command.command)
+        print(int(command.params.key))
 
-    elif messagetype == 8:  # Note off
-        midinote += globaltranspose
-        if midinote in playingnotes:
-            for n in playingnotes[midinote]:
-                if sustain:
-                    sustainplayingnotes.append(n)
-                else:
-                    n.fadeout(50)
-            playingnotes[midinote] = []
+    def rtmidi_callback(self, message, time_stamp):
+        messagetype = message[0] >> 4
+        messagechannel = (message[0] & 15) + 1
+        note = message[1] if len(message) > 1 else None
+        midinote = note
+        velocity = message[2] if len(message) > 2 else None
 
-    elif messagetype == 12:  # Program change
-        print('Program change ' + str(note))
-        preset = note
-        LoadSamples()
+        if messagetype == 9 and velocity == 0:
+            messagetype = 8
 
-    elif (messagetype == 11) and (note == 64) and (velocity < 64):  # sustain pedal off
-        for n in sustainplayingnotes:
-            n.fadeout(50)
-        sustainplayingnotes = []
-        sustain = False
+        if messagetype == 9:    # Note on
+            try:
+                self.playingnotes.setdefault(midinote, []).append(self.samples[midinote, velocity].play(midinote))
+            except:
+                pass
 
-    elif (messagetype == 11) and (note == 64) and (velocity >= 64):  # sustain pedal on
-        sustain = True
+        elif messagetype == 8:  # Note off
+            if midinote in self.playingnotes:
+                for n in self.playingnotes[midinote]:
+                    if self.sustain:
+                        self.sustainplayingnotes.append(n)
+                    else:
+                        n.fadeout(50)
+                self.playingnotes[midinote] = []
+
+        elif (messagetype == 11) and (note == 64) and (velocity < 64):  # sustain pedal off
+            for n in self.sustainplayingnotes:
+                n.fadeout(50)
+            self.sustainplayingnotes = []
+            self.sustain = False
+
+        elif (messagetype == 11) and (note == 64) and (velocity >= 64):  # sustain pedal on
+            self.sustain = True
