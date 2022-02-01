@@ -24,7 +24,6 @@ const bodyStyle = {
 }
 
 function App() {
-  console.log(process.env)
   return (
     <Box
       sx={appStyle}
