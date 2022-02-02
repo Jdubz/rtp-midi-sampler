@@ -20,32 +20,30 @@ class Audio():
     def get_devices():
         return jsonify(sd.query_devices())
 
-    def start(self):          
-
+    def AudioCallback(self, outdata, frame_count, time_info, status):
         try:
-            stream = sd.OutputStream(device=self.config['AUDIO_DEVICE_ID'], blocksize=512, samplerate=44100, channels=2,  dtype='int16', callback=get_callback(self.playingsounds, self.FADEOUT, self.FADEOUTLENGTH, self.SPEED, self.global_volume))
+            MAX_POLYPHONY = 80
+            rmlist = []
+            if (len(self.playingsounds)):
+                print(self.playingsounds)
+                
+            self.playingsounds = self.playingsounds[-MAX_POLYPHONY:]
+            b = samplerbox_audio.mixaudiobuffers(self.playingsounds, rmlist, frame_count, self.FADEOUT, self.FADEOUTLENGTH, self.SPEED)
+            for e in rmlist:
+                try:
+                    self.playingsounds.remove(e)
+                except:
+                    pass
+            b *= self.global_volume
+            outdata[:] = b.reshape(outdata.shape)
+        except Exception as e:
+            logger.warn('callback ---- ', e)
+
+    def start(self):
+        try:
+            stream = sd.OutputStream(device=self.config['AUDIO_DEVICE_ID'], blocksize=512, samplerate=44100, channels=2,  dtype='int16', callback=self.AudioCallback)
             stream.start()
             logger.info('Opened audio device #%i' % self.config['AUDIO_DEVICE_ID'])
         except Exception as e:
             logger.warn(e)
             exit(1)
-
-def get_callback(playingsounds, FADEOUT, FADEOUTLENGTH, SPEED, global_volume):
-
-    def cb(outdata, frame_count, time_info, status):
-        MAX_POLYPHONY = 80
-        rmlist = []
-        if (len(playingsounds)):
-            print(playingsounds)
-            
-        playingsounds = playingsounds[-MAX_POLYPHONY:]
-        b = samplerbox_audio.mixaudiobuffers(playingsounds, rmlist, frame_count, FADEOUT, FADEOUTLENGTH, SPEED)
-        for e in rmlist:
-            try:
-                playingsounds.remove(e)
-            except:
-                pass
-        b *= global_volume
-        outdata[:] = b.reshape(outdata.shape)
-    
-    return cb
