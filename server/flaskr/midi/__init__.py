@@ -2,18 +2,53 @@ import logging
 logger = logging.getLogger(__name__)
 
 class Midi():
-    def __init__(self, samples):
+    def __init__(self, samples, playingsounds):
         self.playingnotes = {}
         self.sustainplayingnotes = []
         self.sustain = False
         self.samples = samples
+        self.playingsounds = playingsounds
 
-    def send_command(channel, command, note, velocity=127):
+        channel = 0
+        while channel < 16:
+            self.playingnotes[channel] = {}
+            channel += 1
 
+    def send_command(self, channel, command, note, velocity=0):
+        print('channel: ' + str(channel) + ' command: ' + str(command) + ' note: ' + str(note) + ' velocity: ' + str(velocity))
+
+        if command == 9:    # Note on
+            try:
+                self.playingnotes[channel].setdefault(note, []).append(self.samples[channel][note, velocity].play(note, self.playingsounds))
+            except:
+                pass
+
+        elif command == 8:  # Note off
+            if note in self.playingnotes[channel]:
+                for n in self.playingnotes[channel][note]:
+                    if self.sustain:
+                        self.sustainplayingnotes[channel].append(n)
+                    else:
+                        n.fadeout(50)
+                self.playingnotes[channel][note] = []
+
+        elif (command == 11) and (note == 64) and (velocity < 64):  # sustain pedal off
+            for n in self.sustainplayingnotes[channel]:
+                n.fadeout(50)
+            self.sustainplayingnotes = []
+            self.sustain = False
+
+        elif (command == 11) and (note == 64) and (velocity >= 64):  # sustain pedal on
+            self.sustain = True
 
     def rtpmidi_callback(self, command):
-        print(command.command)
-        print(int(command.params.key))
+        commandMap = {
+            'note_on': 9,
+            'note_off': 8,
+            'sustain': 11,
+        }
+
+        self.send_command(command.channel, commandMap[command.command], int(command.params.key), command.params.velocity)
 
     def rtmidi_callback(self, message, time_stamp):
         messagetype = message[0] >> 4
@@ -22,29 +57,4 @@ class Midi():
         midinote = note
         velocity = message[2] if len(message) > 2 else None
 
-        if messagetype == 9 and velocity == 0:
-            messagetype = 8
-
-        if messagetype == 9:    # Note on
-            try:
-                self.playingnotes.setdefault(midinote, []).append(self.samples[midinote, velocity].play(midinote))
-            except:
-                pass
-
-        elif messagetype == 8:  # Note off
-            if midinote in self.playingnotes:
-                for n in self.playingnotes[midinote]:
-                    if self.sustain:
-                        self.sustainplayingnotes.append(n)
-                    else:
-                        n.fadeout(50)
-                self.playingnotes[midinote] = []
-
-        elif (messagetype == 11) and (note == 64) and (velocity < 64):  # sustain pedal off
-            for n in self.sustainplayingnotes:
-                n.fadeout(50)
-            self.sustainplayingnotes = []
-            self.sustain = False
-
-        elif (messagetype == 11) and (note == 64) and (velocity >= 64):  # sustain pedal on
-            self.sustain = True
+        self.send_command(messagechannel, messagetype, midinote, velocity)

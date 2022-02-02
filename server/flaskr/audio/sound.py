@@ -3,19 +3,20 @@ import samplerbox_audio
 from audio.waveread import waveread
 
 class PlayingSound:
-    def __init__(self, sound, note):
+    def __init__(self, sound, note, playingsounds):
         self.sound = sound
         self.pos = 0
         self.fadeoutpos = 0
         self.isfadeout = False
         self.note = note
+        self.playingsounds = playingsounds
 
     def fadeout(self, i):
         self.isfadeout = True
 
-    def stop(self, playingsounds):
+    def stop(self):
         try:
-            playingsounds.remove(self)
+            self.playingsounds.remove(self)
         except:
             pass
 
@@ -37,7 +38,7 @@ class Sound:
         wf.close()
 
     def play(self, note, playingsounds):
-        snd = PlayingSound(self, note)
+        snd = PlayingSound(self, note, playingsounds)
         playingsounds.append(snd)
         return snd
 

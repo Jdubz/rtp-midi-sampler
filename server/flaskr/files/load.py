@@ -9,6 +9,11 @@ class Loader():
         self.LoadingInterrupt = False
         self.config = config
         self.samples = {}
+        
+        channel = 0
+        while channel < 16:
+            self.samples[channel] = {}
+            channel += 1
 
     def LoadSamples(self):
         if self.LoadingThread:
@@ -22,31 +27,34 @@ class Loader():
         self.LoadingThread.start()
 
     def ActuallyLoad(self):
-        NOTES = ["c", "c#", "d", "d#", "e", "f", "f#", "g", "g#", "a", "a#", "b"]
-
         samplesdir = self.config["SAMPLES_FOLDER"]
+        channels = self.config['channels']
 
-        for midinote in range(0, 127):
-            if self.LoadingInterrupt:
-                return
-            file = os.path.join(samplesdir, "%d.wav" % midinote)
-            if os.path.isfile(file):
-                self.samples[midinote, 127] = Sound(file, midinote, 127)
+        channel = 0
+        while channel < 16:
+            if channels[channel]:
+                for midinote in range(0, 127):
+                    if self.LoadingInterrupt:
+                        return
+                    file = os.path.join(samplesdir + '/' + channels[channel], "%d.wav" % midinote)
 
-        initial_keys = set(self.samples.keys())
-        for midinote in range(128):
-            lastvelocity = None
-            for velocity in range(128):
-                if (midinote, velocity) not in initial_keys:
-                    self.samples[midinote, velocity] = lastvelocity
-                else:
-                    if not lastvelocity:
-                        for v in range(velocity):
-                            self.samples[midinote, v] = self.samples[midinote, velocity]
-                    lastvelocity = self.samples[midinote, velocity]
-            if not lastvelocity:
+                    if os.path.isfile(file):
+                        self.samples[channel][midinote, 127] = Sound(file, midinote, 127)
+
+            initial_keys = set(self.samples[channel].keys())
+            for midinote in range(128):
+                lastvelocity = None
                 for velocity in range(128):
-                    try:
-                        self.samples[midinote, velocity] = self.samples[midinote-1, velocity]
-                    except:
-                        pass
+                    if (midinote, velocity) not in initial_keys:
+                        self.samples[channel][midinote, velocity] = lastvelocity
+                    else:
+                        if not lastvelocity:
+                            for v in range(velocity):
+                                self.samples[channel][midinote, v] = self.samples[channel][midinote, velocity]
+                        lastvelocity = self.samples[channel][midinote, velocity]
+                if not lastvelocity:
+                    for velocity in range(128):
+                        try:
+                            self.samples[channel][midinote, velocity] = self.samples[channel][midinote-1, velocity]
+                        except:
+                            pass

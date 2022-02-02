@@ -5,6 +5,14 @@ class Storage():
         self.file = './config.json'
         self.load()
 
+    def set_channel(self, channel, value):
+        if value in self.config['channel']:
+            index = self.config['channels'].index(value)
+            self.config['channels'][index] = None
+        
+        self.config['channels'][channel] = value
+        self.save()
+
     def load(self):
         with open(self.file, 'r') as f:
             data = json.load(f)

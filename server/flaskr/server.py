@@ -9,6 +9,7 @@ import asyncio
 
 from midi.rtp_server import start_server
 from midi import Midi
+from midi.devices import open
 from audio import Audio
 from storage import Storage
 from files.load import Loader
@@ -20,17 +21,15 @@ globalVolume = 10 ** (-12.0/20)  # -12dB default global volume
 
 storage = Storage()
 audio = Audio(globalVolume, storage.config)
-
-def start_audio():
-    asyncio.run(audio.start())
-
-audio_thread = threading.Thread(target=start_audio)
-audio_thread.start()
+audio.start()
 
 fileLoader = Loader(storage.config)
 fileLoader.LoadSamples()
 
-midihandler = Midi(fileLoader.samples)
+midihandler = Midi(fileLoader.samples, audio.playingsounds)
+
+midi_thread = threading.Thread(target=open, args=(midihandler.rtmidi_callback,), daemon=True)
+midi_thread.start()
 
 app = Flask(__name__, static_folder='../../build', static_url_path='/')
 CORS(app)
