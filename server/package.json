@@ -1,0 +1,33 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "rtp-midi-server",
+  "main": "index.js",
+  "scripts": {
+    "test": "test",
+    "start": "nodemon src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jdubz/rtp-midi-sampler.git"
+  },
+  "keywords": [
+    "rtpmidi"
+  ],
+  "author": "josh wentworth",
+  "license": "CC-BY-4.0",
+  "bugs": {
+    "url": "https://github.com/Jdubz/rtp-midi-sampler/issues"
+  },
+  "homepage": "https://github.com/Jdubz/rtp-midi-sampler#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.2",
+    "midi": "^2.0.0",
+    "python-shell": "^3.0.1",
+    "rtpmidi": "^1.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
