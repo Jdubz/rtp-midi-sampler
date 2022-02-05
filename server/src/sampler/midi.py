@@ -10,7 +10,8 @@ class Midi_Handler():
 
     if message["command"] == 9:    # Note on
       try:
-        self.playingnotes[message["channel"]].setdefault(message["note"], []).append(samples[message["channel"]][message["note"], message["velocity"]].play(message["note"], playingsounds))
+        sound = samples[message["channel"]][message["note"], message["velocity"]].play(message["note"], playingsounds)
+        self.playingnotes[message["channel"]].setdefault(message["note"], []).append(sound)
       except:
         pass
 

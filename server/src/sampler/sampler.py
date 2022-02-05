@@ -1,8 +1,11 @@
 import sounddevice as sd
+import soundfile as sf
 import samplerbox_audio
 import numpy
 import sys
 import json
+import asyncio
+import os
 
 from load import load_samples
 from config import Config
@@ -16,13 +19,23 @@ while len(samples) < 16:
   samples.append({})
 midi_handler = Midi_Handler()
 
+def startup():
+  file = os.path.join(config.SAMPLES_FOLDER + '/startup.wav')
+  
+  if os.path.isfile(file):
+    try:
+      data, fs = sf.read(file, dtype='float32')
+      sd.play(data, fs, device=config.AUDIO_DEVICE_ID)
+      status = sd.wait()
+      if (status): print(status)
+    except Exception as e:
+      print(e)
+
 def audio_callback(outdata, frame_count, time_info, status):
   global playingsounds
   global global_volume
 
-  if len(playingsounds):
-    print(playingsounds)
-
+  if (status): print(status)
   FADEOUTLENGTH = 30000
   FADEOUT = numpy.linspace(1., 0., FADEOUTLENGTH) # by default, float64
   FADEOUT = numpy.power(FADEOUT, 6)
@@ -40,10 +53,14 @@ def audio_callback(outdata, frame_count, time_info, status):
   b *= global_volume
   outdata[:] = b.reshape(outdata.shape)
 
-def start_audio():
+async def start_audio():
+  event = asyncio.Event()
+  samplerate = sd.query_devices(config.AUDIO_DEVICE_ID, 'output')['default_samplerate']
   try:
-    stream = sd.OutputStream(device=config.AUDIO_DEVICE_ID, blocksize=512, samplerate=44100, channels=2,  dtype='int16', callback=audio_callback)
-    stream.start()
+    stream = sd.OutputStream(device=config.AUDIO_DEVICE_ID, blocksize=512, samplerate=samplerate, channels=2,  dtype='int16', callback=audio_callback)
+    with stream:
+      await event.wait()
+
     print('Opened audio device #%i' % config.AUDIO_DEVICE_ID)
   except Exception as e:
     print('Audio Device Error: ' + str(config.AUDIO_DEVICE_ID))
@@ -51,13 +68,12 @@ def start_audio():
     exit(1)
 
 load_samples(config, samples)
-start_audio()
+asyncio.run(start_audio())
 
 while True:
   for line in sys.stdin:
     try:
       midi_handler.use_command(json.loads(line), samples, playingsounds)
-      print(playingsounds)
     except Exception as e:
       print(e)
 
