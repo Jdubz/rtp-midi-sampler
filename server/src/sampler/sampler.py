@@ -4,12 +4,12 @@ import samplerbox_audio
 import numpy
 import sys
 import json
-import asyncio
 import os
 
 from load import load_samples
 from config import Config
 from midi import Midi_Handler
+from logger import log, error
 
 config = Config()
 playingsounds = []
@@ -24,12 +24,12 @@ def startup():
   
   if os.path.isfile(file):
     try:
-      data, fs = sf.read(file, dtype='float32')
+      data, fs = sf.read(file)
       sd.play(data, fs, device=config.AUDIO_DEVICE_ID)
       status = sd.wait()
-      if (status): print(status)
+      if (status): log('startup status', status)
     except Exception as e:
-      print(e)
+      error('startup', e)
 
 def audio_callback(outdata, frame_count, time_info, status):
   global playingsounds
@@ -53,27 +53,24 @@ def audio_callback(outdata, frame_count, time_info, status):
   b *= global_volume
   outdata[:] = b.reshape(outdata.shape)
 
-async def start_audio():
-  event = asyncio.Event()
+def start_audio():
   samplerate = sd.query_devices(config.AUDIO_DEVICE_ID, 'output')['default_samplerate']
   try:
     stream = sd.OutputStream(device=config.AUDIO_DEVICE_ID, blocksize=512, samplerate=samplerate, channels=2,  dtype='int16', callback=audio_callback)
-    with stream:
-      await event.wait()
-
+    stream.start()
     print('Opened audio device #%i' % config.AUDIO_DEVICE_ID)
   except Exception as e:
-    print('Audio Device Error: ' + str(config.AUDIO_DEVICE_ID))
-    print(e)
+    error('outputstream', e)
     exit(1)
 
 load_samples(config, samples)
-asyncio.run(start_audio())
+startup()
+start_audio()
 
 while True:
   for line in sys.stdin:
     try:
       midi_handler.use_command(json.loads(line), samples, playingsounds)
     except Exception as e:
-      print(e)
+      error('midi handler', e)
 

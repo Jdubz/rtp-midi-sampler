@@ -14,7 +14,7 @@ samplerOptions = {
   pythonPath: '/usr/bin/python3',
   pythonOptions: ['-u'],
   scriptPath: './src/sampler',
-  args: ['2', '../samples']
+  args: ['1', '../samples']
 }
 
 class Sampler {
@@ -45,7 +45,6 @@ class Sampler {
     const parsedMsg = parseStatus(message[0])
     parsedMsg.note = message[1]
     parsedMsg.velocity = message[2]
-    console.log('sending msg: ', parsedMsg)
     this.pyshell.send(JSON.stringify(parsedMsg))
   }
 
