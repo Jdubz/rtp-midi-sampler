@@ -1,0 +1,5 @@
+class Samples {
+  readSamplesFolder() {
+    
+  }
+}

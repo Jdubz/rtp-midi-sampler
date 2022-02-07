@@ -36,20 +36,28 @@ class Sampler {
     this.pyshell.on('close', () => {
       console.log('pyshell closed')
     })
-
-    this.send = this.send.bind(this)
-    this.kill = this.kill.bind(this)
   }
 
-  send(message) {
+  sendMidi = (message) => {
     const parsedMsg = parseStatus(message[0])
     parsedMsg.note = message[1]
     parsedMsg.velocity = message[2]
-    this.pyshell.send(JSON.stringify(parsedMsg))
+    
+
+    this.send('midi', parsedMsg)
   }
 
-  kill() {
+  kill = () => {
     this.pyshell.kill();
+  }
+
+  playFile = (fileName) => {
+    this.send('play', { fileName })
+  }
+
+  send = (type, message) => {
+    message.type = type
+    this.pyshell.send(JSON.stringify(message))
   }
 }
 
