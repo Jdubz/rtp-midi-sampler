@@ -11,9 +11,9 @@ export default function Files() {
     setFolders(foldersList);
   }
 
-  const getFiles = async (path) => {
+  const getFiles = async () => {
     const url = (process.env.NODE_ENV === 'development' ? process.env.REACT_APP_SERVER_URL : '')
-    + '/samples' + (path ? '/' + path : '');
+    + '/samples';
     const filesResponse = await axios.get(url);
     return filesResponse.data;
   }

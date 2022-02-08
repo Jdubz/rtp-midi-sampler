@@ -5,6 +5,7 @@ import Footer from './components/Footer';
 import AccordianGroup from './components/accordianGroup/AccordianGroup';
 import Files from './components/files/Files';
 import Audio from './components/audio/Audio';
+import Midi from './components/midi/Midi';
 
 const appStyle = {
   overflow: 'auto',
@@ -40,6 +41,10 @@ function App() {
             title: 'Audio Devices',
             component: Audio
           },
+          {
+            title: 'Midi Devices',
+            component: Midi
+          }
         ]} />
       </Box>
       <Footer />

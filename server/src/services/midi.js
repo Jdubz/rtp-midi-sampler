@@ -14,7 +14,7 @@ class Midi {
     const numPorts = this.input.getPortCount();
     const portNames = [];
     for (let i = 0; i < numPorts; i++) {
-      portNames.push(i, this.input.getPortName(i));
+      portNames.push({ index: i, name: this.input.getPortName(i) });
     }
     return portNames;
   }
