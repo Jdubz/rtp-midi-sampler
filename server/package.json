@@ -23,6 +23,7 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.2",
+    "lowdb": "^3.0.0",
     "midi": "^2.0.0",
     "python-shell": "^3.0.1",
     "rtpmidi": "^1.0.0"

@@ -7,6 +7,7 @@ import Files from './components/files/Files';
 import Audio from './components/audio/Audio';
 
 const appStyle = {
+  overflow: 'auto',
   maxWidth: 900,
   margin: '0 auto',
   backgroundColor: 'primary.dark',

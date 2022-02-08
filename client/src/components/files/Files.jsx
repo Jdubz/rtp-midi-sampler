@@ -1,45 +1,28 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-import AccordianGroup from '../accordianGroup/AccordianGroup';
-import FileList from './FilesList';
+import FilesList from './FilesList';
 
 export default function Files() {
-  const [folders, setFolders] = useState({});
+  const [folders, setFolders] = useState([]);
 
-  const buildFolders = async () => {
+  const getSamples = async () => {
     const foldersList = await getFiles();
-    setFolders(foldersList.reduce((folderMap, folderName) => {
-      folderMap[folderName] = {
-        title: folderName,
-        component: () => <FileList files={[]} setFiles={() => getFolder(folderName)} />,
-      }
-      return folderMap;
-    }, {}));
-  }
-
-  const getFolder = async (folderName) => {
-    const folderResponse = await getFiles(folderName);
-    const newFolders = { ...folders };
-    newFolders[folderName] = {
-      title: folderName,
-      component: () => <FileList files={folderResponse} setFiles={() => getFolder(folderName)} />,
-    }
-    setFolders(newFolders)
+    setFolders(foldersList);
   }
 
   const getFiles = async (path) => {
     const url = (process.env.NODE_ENV === 'development' ? process.env.REACT_APP_SERVER_URL : '')
-    + '/file' + (path ? '/' + path : '');
+    + '/samples' + (path ? '/' + path : '');
     const filesResponse = await axios.get(url);
     return filesResponse.data;
   }
 
   useEffect(() => {
-    buildFolders();
+    getSamples();
   }, [])
 
   return(
-    <AccordianGroup items={Object.values(folders)} onChange={getFolder} />
+    <FilesList files={folders} />
   );
 }

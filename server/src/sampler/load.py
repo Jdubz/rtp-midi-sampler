@@ -1,5 +1,6 @@
 import os
 
+from logger import info
 from sound import Sound 
 
 def load_samples(config, samples):
@@ -30,4 +31,4 @@ def load_samples(config, samples):
                         except:
                             pass
         channel += 1
-    print('samples loaded')
+    info('samples', 'loading finished')

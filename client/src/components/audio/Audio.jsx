@@ -9,7 +9,7 @@ export default function Devices() {
   const getDevices = async () => {
     const devices = await axios.get(
       (process.env.NODE_ENV === 'development' ? process.env.REACT_APP_SERVER_URL : '')
-    + '/audiodevice');
+    + '/audio');
     setDevices(devices.data);
   }
 

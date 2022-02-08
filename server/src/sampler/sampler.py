@@ -9,7 +9,7 @@ import os
 from load import load_samples
 from config import Config
 from midi import Midi_Handler
-from logger import log, error
+from logger import response, info, error
 
 config = Config()
 playingsounds = []
@@ -27,7 +27,7 @@ def startup():
       data, fs = sf.read(file)
       sd.play(data, fs, device=config.AUDIO_DEVICE_ID)
       status = sd.wait()
-      if (status): log('startup status', status)
+      if (status): info('startup status', status)
     except Exception as e:
       error('startup', e)
 
@@ -58,10 +58,26 @@ def start_audio():
   try:
     stream = sd.OutputStream(device=config.AUDIO_DEVICE_ID, blocksize=512, samplerate=samplerate, channels=2,  dtype='int16', callback=audio_callback)
     stream.start()
-    print('Opened audio device #%i' % config.AUDIO_DEVICE_ID)
+    info('audio stream', 'Opened audio device: '+ str(config.AUDIO_DEVICE_ID))
   except Exception as e:
     error('outputstream', e)
     exit(1)
+
+def controlCallback(message):
+  if message['type'] == 'request':
+    if message['id'] == 'getDevices':
+      devices = sd.query_devices()
+      response(message['id'], devices)
+
+    if message['id'] == 'playFile':
+      response(message['id'], 'not yet')
+
+  if message['type'] == 'midi':
+    try:
+      midi_handler.use_command(message['message'], samples, playingsounds)
+    except Exception as e:
+      error('midi handler', e)
+      
 
 load_samples(config, samples)
 startup()
@@ -69,8 +85,6 @@ start_audio()
 
 while True:
   for line in sys.stdin:
-    try:
-      midi_handler.use_command(json.loads(line), samples, playingsounds)
-    except Exception as e:
-      error('midi handler', e)
+    message = json.loads(line)
+    controlCallback(message)
 

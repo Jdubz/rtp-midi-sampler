@@ -8,8 +8,6 @@ class Midi {
     this.input.on('message', (deltaTime, message) => {
       callback(message);
     });
-    this.openPort = this.openPort.bind(this);
-    this.getDevices = this.getDevices.bind(this);
   }
 
   getDevices = () => {

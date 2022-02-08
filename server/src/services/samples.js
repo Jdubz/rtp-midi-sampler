@@ -2,23 +2,23 @@ var fs = require('fs');
 
 const walkDir = async (dir, results) => {
   const files = await fs.promises.readdir(dir)
-  files.forEach((file) => {
-    const stat = await fs.promises.stat(file);
+  for (const file in files) {
+    const stat = await fs.promises.stat(dir + '/' + files[file]);
     if (stat && stat.isDirectory()) {
       const directory = {};
-      directory.name = file;
-      directory.files = await walkDir(file, results);
+      directory.name = files[file];
+      directory.files = await walkDir(dir + '/' + files[file], []);
       results.push(directory);
     } else {
-      results.push(file);
+      results.push(files[file]);
     }
-    return results;
-  });
+  }
+  return results;
 }
 
 class SamplesService {
-  readSamplesFolder() {
-    return await walkDir(dir);
+  readSamplesFolder = async () => {
+    return await walkDir('../samples', []);
   }
 }
 
