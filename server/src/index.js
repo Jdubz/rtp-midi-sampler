@@ -1,19 +1,16 @@
 const express = require('express')
-var cors = require('cors')
+const cors = require('cors')
+const bodyParser = require('body-parser')
 
-const applyRoutes = require('./routes')
+const config = require('./config')
 
 const app = express()
 app.use(cors())
+app.use(bodyParser.json())
 const port = 8080
 
 app.use(express.static('../build'))
-applyRoutes(app)
-
-process.on('exit', (code) => {
-  console.log('process exit, code: ' + code)
-  sampler.kill()
-})
+config(app)
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)

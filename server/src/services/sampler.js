@@ -18,7 +18,8 @@ samplerOptions = {
 }
 
 class Sampler {
-  constructor() {
+  constructor(storage) {
+    this.storage = storage
     this.pyshell = new PythonShell('sampler.py', samplerOptions);
 
     this.pyshell.on('message', (message) => {

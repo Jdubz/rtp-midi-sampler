@@ -21,10 +21,12 @@
   },
   "homepage": "https://github.com/Jdubz/rtp-midi-sampler#readme",
   "dependencies": {
+    "body-parser": "^1.19.1",
     "cors": "^2.8.5",
     "express": "^4.17.2",
-    "lowdb": "^3.0.0",
+    "express-requests-logger": "^3.0.4",
     "midi": "^2.0.0",
+    "nedb-async": "^0.1.6",
     "python-shell": "^3.0.1",
     "rtpmidi": "^1.0.0"
   },

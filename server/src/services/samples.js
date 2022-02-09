@@ -17,6 +17,10 @@ const walkDir = async (dir, results) => {
 }
 
 class SamplesService {
+  constructor(storage) {
+    this.storage = storage
+  }
+
   readSamplesFolder = async () => {
     return await walkDir('../samples', []);
   }
