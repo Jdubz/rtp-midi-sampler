@@ -46,6 +46,14 @@ class StorageService {
     }
     return await this.db.asyncUpdate(query, doc)
   }
+
+  delete = async (type, query) => {
+    const doc = {
+      type,
+      ...query
+    }
+    return await this.db.asyncRemove(doc)
+  }
 }
 
 module.exports = StorageService

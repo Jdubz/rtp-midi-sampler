@@ -14,6 +14,7 @@ class Midi {
   init = async () => {
     const savedDevices = await this.loadDevices()
     const connectedDevices = this.getConnectedDevices()
+    // TODO midi devices default to open
     for (const i in connectedDevices) {
       const device = connectedDevices[i]
       if (savedDevices[device.name] && savedDevices[device.name].open) {

@@ -9,7 +9,7 @@ import os
 from load import load_samples
 from config import Config
 from midi import Midi_Handler
-from logger import response, info, error
+from logger import response, info, error, event
 
 config = Config()
 playingsounds = []
@@ -18,14 +18,16 @@ samples = []
 while len(samples) < 16:
   samples.append({})
 midi_handler = Midi_Handler()
+outStream = None
+audio_device = 0
 
-def startup():
+def startup(audio_device):
   file = os.path.join(config.SAMPLES_FOLDER + '/startup.wav')
   
   if os.path.isfile(file):
     try:
       data, fs = sf.read(file)
-      sd.play(data, fs, device=config.AUDIO_DEVICE_ID)
+      sd.play(data, fs, device=audio_device)
       status = sd.wait()
       if (status): info('startup status', status)
     except Exception as e:
@@ -35,7 +37,7 @@ def audio_callback(outdata, frame_count, time_info, status):
   global playingsounds
   global global_volume
 
-  if (status): print(status)
+  if (status): error('audio callback', status)
   FADEOUTLENGTH = 30000
   FADEOUT = numpy.linspace(1., 0., FADEOUTLENGTH) # by default, float64
   FADEOUT = numpy.power(FADEOUT, 6)
@@ -53,15 +55,25 @@ def audio_callback(outdata, frame_count, time_info, status):
   b *= global_volume
   outdata[:] = b.reshape(outdata.shape)
 
-def start_audio():
-  samplerate = sd.query_devices(config.AUDIO_DEVICE_ID, 'output')['default_samplerate']
+def start_audio(device_id=None):
+  global audio_device
+  global outStream
+
+  if (device_id):
+    audio_device = device_id
+
+  samplerate = sd.query_devices(device_id, 'output')['default_samplerate']
   try:
-    stream = sd.OutputStream(device=config.AUDIO_DEVICE_ID, blocksize=512, samplerate=samplerate, channels=2,  dtype='int16', callback=audio_callback)
-    stream.start()
-    info('audio stream', 'Opened audio device: '+ str(config.AUDIO_DEVICE_ID))
+    outStream = sd.OutputStream(device=device_id, blocksize=512, samplerate=samplerate, channels=2,  dtype='int16', callback=audio_callback)
+    outStream.start()
+    info('audio stream', 'Opened audio device id: '+ str(device_id))
   except Exception as e:
     error('outputstream', e)
     exit(1)
+
+def stop_audio():
+  if (outStream):
+    outStream.stop()
 
 def controlCallback(message):
   if message['type'] == 'request':
@@ -70,19 +82,30 @@ def controlCallback(message):
       response(message['id'], devices)
 
     if message['id'] == 'playFile':
-      response(message['id'], 'not yet')
+      response(message['id'], 'development in progress')
+
+    if message['id'] == 'loadSamples':
+      if (outStream):
+        stop_audio()
+      load_samples(message['channels'], samples)
+      if (audio_device):
+        start_audio()
+      response(message['id'], 'samples loaded')
+    
+    if message['id'] == 'start_audio':
+      if (outStream):
+        stop_audio()
+      startup(message['message'])
+      start_audio(message['message'])
+      response(message['id'], 'audio started')
 
   if message['type'] == 'midi':
     try:
       midi_handler.use_command(message['message'], samples, playingsounds)
     except Exception as e:
       error('midi handler', e)
-      
 
-load_samples(config, samples)
-startup()
-start_audio()
-
+event('ready', { 'audioDevices': sd.query_devices() })
 while True:
   for line in sys.stdin:
     message = json.loads(line)

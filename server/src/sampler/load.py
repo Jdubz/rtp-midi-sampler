@@ -4,6 +4,7 @@ from logger import info
 from sound import Sound 
 
 def load_samples(config, samples):
+    samples = []
     channel = 0
     while channel < 16:
         if config.channels[channel]:

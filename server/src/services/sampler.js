@@ -21,43 +21,109 @@ class Sampler {
   constructor(storage) {
     this.storage = storage
     this.pyshell = new PythonShell('sampler.py', samplerOptions);
+    this.outputDevice = 1
 
-    this.pyshell.on('message', (message) => {
+    this.pyshell.on('message', async (message) => {
+      let msg
       try {
-        const msg = JSON.parse(message)
-        this.parseMessage(msg) 
+        msg = JSON.parse(message)
       } catch(e) {
-        console.warn('pyshell message', message)
+        console.warn('unparseable sampler message', e)
+        console.log('sampler message:', message)
       }
+      if (msg) await this.parseMessage(msg) 
     });
 
     this.pyshell.on('stderr', (err) => {
-      console.error('pyshell stderr: ', err)
+      try {
+        const error = JSON.parse(err)
+        console.error('sampler stderr:', error.tag, error.error)
+      } catch(e) {
+        console.log('sampler stderr:', err)
+      }
     });
 
     this.pyshell.on('error', (err) => {
-      console.error('pyshell error: ', err)
+      console.error('sampler error:', err)
     })
 
     this.pyshell.on('close', () => {
-      console.log('pyshell closed')
+      console.log('sampler closed')
     })
 
     this.pendingMessages = {}
   }
 
-  parseMessage = (msg) => {
+  parseMessage = async (msg) => {
     switch (msg.type) {
       case 'info':
-        console.log('pyshell: ', msg.tag, msg.message)
+        console.log('sampler info:', msg.tag, msg.message)
         break
       case 'response':
         this.pendingMessages[msg.id](msg.data)
         delete this.pendingMessages[msg.id]
         break
+      case 'event':
+        if (msg.event === 'ready') {
+          await this.init(msg.data)
+        }
+        break
       default:
-        console.warn('unknown msg type', msg)
+        console.warn('unknown sampler message type:', msg)
     }
+  }
+
+  init = async (data) => {
+    const audioDevice = await this.storage.findOne('config', { config: 'audio output device' })
+    if (audioDevice) {
+      const audioDeviceIndex = data.audioDevices.findIndex((device) =>
+        device.name === audioDevice.name
+      )
+      if (audioDeviceIndex >= 0) {
+        await this.send('request', audioDeviceIndex, 'start_audio')
+      } else {
+        await this.storage.delete('config', { config: 'audio output device' })
+      }
+    }
+  }
+
+  openOutput = async (device) => {
+    const { index } = device
+    const current = await this.storage.findOne('config', { config: 'audio output device' })
+    if (current) {
+      await this.storage.update('config', {
+        config: 'audio output device'
+      },{
+        config: 'audio output device',
+        name: device.name
+      })
+    } else {
+      await this.storage.insert(
+        'config',
+        {
+          config: 'audio output device',
+          name: device.name
+        },
+      )
+    }
+    return await this.send('request', index, 'start_audio')
+  }
+
+  loadSamples = async (channels) => {
+    return await this.send('request', channels, 'loadSamples')
+  }
+
+  playFile = async (fileName) => {
+    return await this.send('request', fileName, 'playFile')
+  }
+
+  getAudioDevices = async () => {
+    return await this.send('request', 'get_audio_devices', 'getDevices')
+  }
+
+  getCurrentOutput = async () => {
+    const audioDevice = await this.storage.findOne('config', { config: 'audio output device' })
+    return audioDevice
   }
 
   sendMidi = (message) => {
@@ -65,14 +131,6 @@ class Sampler {
     parsedMsg.note = message[1]
     parsedMsg.velocity = message[2]
     this.send('midi', parsedMsg)
-  }
-
-  kill = () => {
-    this.pyshell.kill();
-  }
-
-  playFile = (fileName) => {
-    return this.send('request', fileName, 'playFile')
   }
 
   send = async (type, message, id) => {
@@ -88,8 +146,8 @@ class Sampler {
     }
   }
 
-  getAudioDevices = async () => {
-    return this.send('request', 'get_audio_devices', 'getDevices')
+  kill = () => {
+    this.pyshell.kill();
   }
 }
 

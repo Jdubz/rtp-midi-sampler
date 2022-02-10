@@ -28,6 +28,8 @@ const applyRoutes = async (app) => {
   app.get('/midi', midiController.getDevices)
   app.post('/midi', midiController.openDevice)
   app.get('/audio', audioController.getDevices)
+  app.get('/audio/output', audioController.getCurrentOutput)
+  app.post('/audio/output', audioController.openOutput)
 
   process.on('exit', (code) => {
     console.log('process exit, code: ' + code)

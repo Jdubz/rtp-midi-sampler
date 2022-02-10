@@ -24,3 +24,11 @@ def response(id, data):
     'data': data
   }
   print(json.dumps(log))
+
+def event(eventName, data):
+  event = {
+    'type': 'event',
+    'event': eventName,
+    'data': data
+  }
+  print(json.dumps(event))
