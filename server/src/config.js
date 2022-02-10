@@ -25,8 +25,12 @@ const applyRoutes = async (app) => {
 
   app.get('/samples', samplesController.getSamples)
   app.post('/sampler/playFile', samplerController.playSample)
+
   app.get('/midi', midiController.getDevices)
   app.post('/midi', midiController.openDevice)
+  app.get('/midi/channels', midiController.getChannels)
+  app.post('/midi/channel', midiController.updateChannel)
+
   app.get('/audio', audioController.getDevices)
   app.get('/audio/output', audioController.getCurrentOutput)
   app.post('/audio/output', audioController.openOutput)

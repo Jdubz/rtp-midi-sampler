@@ -26,6 +26,7 @@ class Midi {
         await this.storage.insert('midiDevice', device)
       }
     }
+    await this.getChannels()
   }
 
   loadDevices = async () => {
@@ -56,6 +57,42 @@ class Midi {
         ...savedDevices[device.name]
       }
     })
+  }
+
+  getChannels = async () => {
+    const channelsConfig = await this.storage.findOne('config', { config: 'channel map' })
+    if (channelsConfig) {
+      return channelsConfig.channels
+    } else {
+      const channels = [...new Array(16).keys()].map(() => null)
+      await this.storage.insert('config', { 
+        config: 'channel map',
+        channels
+      })
+      return channels
+    }
+  }
+
+  updateChannel = async (index, value) => {
+    const channelsConfig = await this.storage.findOne('config', { config: 'channel map' })
+    if (channelsConfig) {
+      const newChannels = [ ...channelsConfig.channels ]
+      newChannels[index] = value
+      await this.storage.update('config', { config: 'channel map' }, {
+        config: 'channel map',
+        channels: newChannels
+      })
+      return newChannels
+    } else {
+      const newChannels = new Array(16)
+      newChannels[index] = value
+      await this.storage.insert('config',
+      {
+        config: 'channel map',
+        channels: newChannels
+      })
+      return newChannels
+    }
   }
 
   openPort = async (device) => {
