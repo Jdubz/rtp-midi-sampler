@@ -9,7 +9,7 @@ class MidiController {
   }
 
   openDevice = async (req, res) => {
-    const response = await this.service.openPort(req.body)
+    const response = await this.service.togglePort(req.body)
     res.send(response)
   }
 

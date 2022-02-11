@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useContext } from 'react';
 
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -9,34 +8,15 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 
+import { ApiContext } from '../../providers/api';
+
 export default function Midi() {
-  const [devices, setDevices] = useState([])
-
-  useEffect(() => {
-    getDevices()
-  }, [])
-
-  const getDevices = async () => {
-    const url = (process.env.NODE_ENV === 'development' ? process.env.REACT_APP_SERVER_URL : '')
-    + '/midi';
-    const midiResponse = await axios.get(url);
-    setDevices(midiResponse.data);
-  }
-
-  const openDevice = async (i) => {
-    const url = (process.env.NODE_ENV === 'development' ? process.env.REACT_APP_SERVER_URL : '')
-    + '/midi';
-    const device = devices[i]
-    const midiResponse = await axios.post(url, device);
-    const newDevice = midiResponse.data
-    devices[i] = newDevice
-    setDevices([ ...devices ])
-  }
+  const { midiDevices, openMidiDevice } = useContext(ApiContext)
 
   return <List dense={true}>
-    {devices.map((device, i) => 
+    {midiDevices.map((device, i) => 
       <ListItem key={i}>
-        <ListItemButton onClick={() => openDevice(i)}>
+        <ListItemButton onClick={() => openMidiDevice(i)}>
           <ListItemText
             primary={device.name}
           />
@@ -45,7 +25,6 @@ export default function Midi() {
               ? <RadioButtonCheckedIcon />
               : <RadioButtonUncheckedIcon />
             }
-            
           </ListItemIcon>
         </ListItemButton>
       </ListItem>

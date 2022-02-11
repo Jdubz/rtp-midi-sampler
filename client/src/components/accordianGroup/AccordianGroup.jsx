@@ -24,7 +24,7 @@ export default function AccordianGroup({ items, onChange }) {
               <Typography variant="h6"sx={{ flexGrow: 1 }}>{item.title}</Typography>
             </AccordionSummary>
             <Box sx={{ padding: '1rem' }}>
-              <item.component />
+              <item.component isOpen={expanded === item.title} />
             </Box>
           </Accordion>
         )}

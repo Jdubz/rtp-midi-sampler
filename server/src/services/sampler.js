@@ -18,7 +18,8 @@ samplerOptions = {
 }
 
 class Sampler {
-  constructor(storage) {
+  constructor(storage, socket) {
+    this.socket = socket
     this.storage = storage
     this.pyshell = new PythonShell('sampler.py', samplerOptions);
     this.outputDevice = 1
@@ -130,6 +131,7 @@ class Sampler {
     const parsedMsg = parseStatus(message[0])
     parsedMsg.note = message[1]
     parsedMsg.velocity = message[2]
+    this.socket.send('midiMessage', parsedMsg)
     this.send('midi', parsedMsg)
   }
 

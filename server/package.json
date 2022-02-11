@@ -28,7 +28,8 @@
     "midi": "^2.0.0",
     "nedb-async": "^0.1.6",
     "python-shell": "^3.0.1",
-    "rtpmidi": "^1.0.0"
+    "rtpmidi": "^1.0.0",
+    "socket.io": "^4.4.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"

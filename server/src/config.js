@@ -3,17 +3,19 @@ const MidiService = require('./services/midi')
 const RtpService = require('./services/rtpmidi')
 const SamplesService = require('./services/samples')
 const Storage = require('./services/storage')
+const Socket = require('./services/socket')
 
 const SamplesController = require('./controllers/samples')
 const SamplerController = require('./controllers/sampler')
 const MidiController = require('./controllers/midi')
 const AudioController = require('./controllers/audio')
 
-const applyRoutes = async (app) => {
+const applyRoutes = async (app, io) => {
+  const socket = new Socket(io)
   const storage = new Storage()
   await storage.index()
   const samplesService = new SamplesService(storage)
-  const samplerService = new SamplerService(storage)
+  const samplerService = new SamplerService(storage, socket)
   const midiService = new MidiService(samplerService.sendMidi, storage)
   await midiService.init()
   const rtpService = new RtpService('Sampler', 5051, samplerService.sendMidi)

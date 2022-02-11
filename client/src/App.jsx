@@ -1,11 +1,14 @@
 import Box from '@mui/material/Box';
 
+import ApiProvider from './providers/api'
 import Header from './components/Header';
 import Footer from './components/Footer';
 import AccordianGroup from './components/accordianGroup/AccordianGroup';
 import Files from './components/files/Files';
 import Audio from './components/audio/Audio';
 import Midi from './components/midi/Midi';
+import Channels from './components/channels/Channels';
+import Stream from './components/midi/Stream';
 
 const appStyle = {
   overflow: 'auto',
@@ -30,24 +33,34 @@ function App() {
     <Box
       sx={appStyle}
     >
-      <Header />
-      <Box sx={bodyStyle}>
-        <AccordianGroup items={[
-          {
-            title: 'Files',
-            component: Files
-          },
-          {
-            title: 'Audio Devices',
-            component: Audio
-          },
-          {
-            title: 'Midi Devices',
-            component: Midi
-          }
-        ]} />
-      </Box>
-      <Footer />
+      <ApiProvider>
+        <Header />
+        <Box sx={bodyStyle}>
+          <AccordianGroup items={[
+            {
+              title: 'Files',
+              component: Files
+            },
+            {
+              title: 'Audio Devices',
+              component: Audio
+            },
+            {
+              title: 'Midi Devices',
+              component: Midi
+            },
+            {
+              title: 'Midi Channels',
+              component: Channels
+            },
+            {
+              title: 'Midi Messages',
+              component: Stream
+            }
+          ]} />
+        </Box>
+        <Footer />
+      </ApiProvider>
     </Box>
   );
 }

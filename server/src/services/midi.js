@@ -2,13 +2,9 @@ const midi = require('midi');
 
 class Midi {
   constructor(callback, storage) {
+    this.messageCallback = callback
     this.storage = storage
-    this.input = new midi.Input();
-    this.portMap = {};
-
-    this.input.on('message', (deltaTime, message) => {
-      callback(message);
-    });
+    this.inputs = {};
   }
 
   init = async () => {
@@ -18,7 +14,7 @@ class Midi {
     for (const i in connectedDevices) {
       const device = connectedDevices[i]
       if (savedDevices[device.name] && savedDevices[device.name].open) {
-        this.input.openPort(device.index);
+        this.openInput(device.index);
         console.log('Opened midi device ', device.name)
       }
       if (!savedDevices[device.name]) {
@@ -27,6 +23,21 @@ class Midi {
       }
     }
     await this.getChannels()
+  }
+
+  openInput = (deviceId) => {
+    const input = new midi.Input()
+    input.on('message', (deltaTime, message) => {
+      this.messageCallback(message);
+    });
+    input.openPort(deviceId)
+    this.inputs[deviceId] = input
+  }
+
+  closeInput = (deviceId) => {
+    const input = this.inputs[deviceId]
+    input.closePort()
+    delete this.inputs[deviceId]
   }
 
   loadDevices = async () => {
@@ -39,10 +50,11 @@ class Midi {
   }
 
   getConnectedDevices = () => {
-    const numPorts = this.input.getPortCount();
+    const input = new midi.Input()
+    const numPorts = input.getPortCount();
     const ports = [];
     for (let i = 0; i < numPorts; i++) {
-      const name = this.input.getPortName(i)
+      const name = input.getPortName(i)
       ports.push({ index: i, name });
     }
     return ports;
@@ -95,11 +107,11 @@ class Midi {
     }
   }
 
-  openPort = async (device) => {
+  togglePort = async (device) => {
     if (device.open) {
-      this.input.closePort(device.index)
+      this.closeInput(device.index)
     } else {
-      this.input.openPort(device.index)
+      this.openInput(device.index)
     }
     const newDevice = { ...device, open: !device.open }
     delete newDevice.index
