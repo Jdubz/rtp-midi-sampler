@@ -24,11 +24,11 @@ class Midi_Handler():
             n.fadeout(50)
         self.playingnotes[message["channel"]][message["note"]] = []
 
-    elif (message["command"] == 11) and (message["note"] == 64) and (message["velocity"] < 64):  # sustain pedal off
-      for n in self.sustainplayingnotes[message["channel"]]:
-        n.fadeout(50)
-      self.sustainplayingnotes = []
-      self.sustain = False
+    # elif (message["command"] == 11) and (message["note"] == 64) and (message["velocity"] < 64):  # sustain pedal off
+    #   for n in self.sustainplayingnotes[message["channel"]]:
+    #     n.fadeout(50)
+    #   self.sustainplayingnotes = []
+    #   self.sustain = False
 
-    elif (message["command"] == 11) and (message["note"] == 64) and (message["velocity"] >= 64):  # sustain pedal on
-      self.sustain = True
+    # elif (message["command"] == 11) and (message["note"] == 64) and (message["velocity"] >= 64):  # sustain pedal on
+    #   self.sustain = True

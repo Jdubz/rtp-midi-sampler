@@ -16,7 +16,7 @@ const applyRoutes = async (app, io) => {
   await storage.index()
   const samplesService = new SamplesService(storage)
   const samplerService = new SamplerService(storage, socket)
-  const midiService = new MidiService(samplerService.sendMidi, storage)
+  const midiService = new MidiService(samplerService.sendMidi, storage, samplerService)
   await midiService.init()
   const rtpService = new RtpService('Sampler', 5051, samplerService.sendMidi)
 

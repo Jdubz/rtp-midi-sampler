@@ -2,6 +2,7 @@ const { AsyncNedb } = require('nedb-async')
 const path = require('path')
 
 // TODO migrate to nedb-promises https://www.npmjs.com/package/nedb-promises
+// TODO implement findOrCreate method
 class StorageService {
   constructor() {
     const filename = path.resolve('./data.db')

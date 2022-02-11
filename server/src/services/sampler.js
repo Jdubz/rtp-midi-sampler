@@ -86,6 +86,10 @@ class Sampler {
         await this.storage.delete('config', { config: 'audio output device' })
       }
     }
+    const channels = await this.storage.findOne('config', { config: 'channel map' })
+    if (channels) {
+      await this.send('request', channels.channels, 'loadSamples')
+    } // else create channels config?
   }
 
   openOutput = async (device) => {
@@ -112,6 +116,10 @@ class Sampler {
 
   loadSamples = async (channels) => {
     return await this.send('request', channels, 'loadSamples')
+  }
+
+  loadChannel = async (channel, folder) => {
+    return await this.send('request', { channel, folder }, 'loadChannel')
   }
 
   playFile = async (fileName) => {
@@ -141,6 +149,7 @@ class Sampler {
       id,
       type,
     }))
+    // TODO guarantee no id overwrites
     if (id) {
       return new Promise((resolve, reject) => {
         this.pendingMessages[id] = resolve

@@ -6,7 +6,7 @@ import sys
 import json
 import os
 
-from load import load_samples
+from load import load_samples, load_channel
 from config import Config
 from midi import Midi_Handler
 from logger import response, info, error, event
@@ -75,6 +75,7 @@ def stop_audio():
   if (outStream):
     outStream.stop()
 
+# TODO catch / handle / return errors
 def controlCallback(message):
   if message['type'] == 'request':
     if message['id'] == 'getDevices':
@@ -87,10 +88,18 @@ def controlCallback(message):
     if message['id'] == 'loadSamples':
       if (outStream):
         stop_audio()
-      load_samples(message['channels'], samples)
-      if (audio_device):
-        start_audio()
+      load_samples(config, message['message'], samples)
+      if (outStream):
+        stop_audio()
       response(message['id'], 'samples loaded')
+
+    if message['id'] == 'loadChannel':
+      if (outStream):
+        stop_audio()
+      load_channel(config, message['message'], samples)
+      if (outStream):
+        stop_audio()
+      response(message['id'], 'channel loaded')
     
     if message['id'] == 'start_audio':
       if (outStream):

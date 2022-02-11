@@ -10,10 +10,12 @@ const io = Socketio(server, { cors: {
   origin: true,
 }})
 
+const requestLogger = require('./middleware/logger')
 const config = require('./config')
 
 app.use(cors())
 app.use(bodyParser.json())
+app.use(requestLogger)
 app.use(express.static('../build'))
 
 config(app, io)

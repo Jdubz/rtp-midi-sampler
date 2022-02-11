@@ -1,7 +1,8 @@
 const midi = require('midi');
 
 class Midi {
-  constructor(callback, storage) {
+  constructor(callback, storage, sampler) {
+    this.sampler = sampler
     this.messageCallback = callback
     this.storage = storage
     this.inputs = {};
@@ -87,24 +88,25 @@ class Midi {
 
   updateChannel = async (index, value) => {
     const channelsConfig = await this.storage.findOne('config', { config: 'channel map' })
+    let newChannels
     if (channelsConfig) {
-      const newChannels = [ ...channelsConfig.channels ]
+      newChannels = [ ...channelsConfig.channels ]
       newChannels[index] = value
       await this.storage.update('config', { config: 'channel map' }, {
         config: 'channel map',
         channels: newChannels
       })
-      return newChannels
     } else {
-      const newChannels = new Array(16)
+      newChannels = new Array(16)
       newChannels[index] = value
       await this.storage.insert('config',
       {
         config: 'channel map',
         channels: newChannels
       })
-      return newChannels
     }
+    await this.sampler.loadChannel(index, value)
+    return newChannels
   }
 
   togglePort = async (device) => {

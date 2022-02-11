@@ -9,6 +9,14 @@ def info(tag, message):
   }
   print(json.dumps(log))
 
+def debug(tag, message):
+  log = {
+    'tag': tag,
+    'type': 'debug',
+    'message': message
+  }
+  print(json.dumps(log))
+
 def error(tag, err):
   log = {
     'tag': tag,
