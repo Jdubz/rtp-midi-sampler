@@ -1,3 +1,5 @@
+from logger import error, info
+
 class Midi_Handler():
   def __init__(self):
     self.playingnotes = []
@@ -12,7 +14,7 @@ class Midi_Handler():
       try:
         sound = samples[message["channel"]][message["note"], message["velocity"]].play(message["note"], playingsounds)
         self.playingnotes[message["channel"]].setdefault(message["note"], []).append(sound)
-      except:
+      except Exception as e:
         pass
 
     elif message["command"] == 8:  # Note off

@@ -21,7 +21,7 @@ def error(tag, err):
   log = {
     'tag': tag,
     'type': 'error',
-    'error': str(err)
+    'error': repr(err)
   }
   print(json.dumps(log), file=sys.stderr)
 

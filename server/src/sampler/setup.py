@@ -14,5 +14,3 @@ setup(
   ext_modules = cythonize(['samplerbox_audio.pyx']),
   include_dirs=[numpy.get_include()]
 )
-
-#   install_requires=['flask', 'flask_cors', 'sounddevice', 'pymidi', 'cython', 'numpy'],

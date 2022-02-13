@@ -7,11 +7,9 @@ import json
 import os
 
 from load import load_samples, load_channel
-from config import Config
 from midi import Midi_Handler
 from logger import response, info, error, event
 
-config = Config()
 playingsounds = []
 global_volume = 10 ** (-12.0/20)  # -12dB default global volume
 samples = []
@@ -20,9 +18,10 @@ while len(samples) < 16:
 midi_handler = Midi_Handler()
 outStream = None
 audio_device = 0
+SAMPLES_FOLDER = sys.argv[1]
 
 def startup(audio_device):
-  file = os.path.join(config.SAMPLES_FOLDER + '/startup.wav')
+  file = os.path.join(SAMPLES_FOLDER + '/startup.wav')
   
   if os.path.isfile(file):
     try:
@@ -66,17 +65,22 @@ def start_audio(device_id=None):
   try:
     outStream = sd.OutputStream(device=device_id, blocksize=512, samplerate=samplerate, channels=2,  dtype='int16', callback=audio_callback)
     outStream.start()
-    info('audio stream', 'Opened audio device id: '+ str(device_id))
+    info('audio stream', 'Opened audio device id: '+ str(audio_device))
   except Exception as e:
     error('outputstream', e)
     exit(1)
 
 def stop_audio():
+  global outStream
   if (outStream):
     outStream.stop()
 
 # TODO catch / handle / return errors
 def controlCallback(message):
+  global samples
+  global playingsounds
+  global SAMPLES_FOLDER
+
   if message['type'] == 'request':
     if message['id'] == 'getDevices':
       devices = sd.query_devices()
@@ -86,24 +90,16 @@ def controlCallback(message):
       response(message['id'], 'development in progress')
 
     if message['id'] == 'loadSamples':
-      if (outStream):
-        stop_audio()
-      load_samples(config, message['message'], samples)
-      if (outStream):
-        stop_audio()
+      load_samples(SAMPLES_FOLDER, message['message'], samples)
+      info('load samples 0', len(samples[0].keys()))
       response(message['id'], 'samples loaded')
 
     if message['id'] == 'loadChannel':
-      if (outStream):
-        stop_audio()
-      load_channel(config, message['message'], samples)
-      if (outStream):
-        stop_audio()
+      load_channel(SAMPLES_FOLDER, message['message']['channel'], message['message']['folder'], samples)
       response(message['id'], 'channel loaded')
     
     if message['id'] == 'start_audio':
-      if (outStream):
-        stop_audio()
+      stop_audio()
       startup(message['message'])
       start_audio(message['message'])
       response(message['id'], 'audio started')

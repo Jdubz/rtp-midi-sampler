@@ -1,4 +1,5 @@
 const {PythonShell} = require('python-shell')
+const path = require('path')
 
 const parseStatus = (int) => {
   const byte = int.toString(16);
@@ -14,7 +15,7 @@ samplerOptions = {
   pythonPath: '/usr/bin/python3',
   pythonOptions: ['-u'],
   scriptPath: './src/sampler',
-  args: ['1', '../samples']
+  args: ['../samples']
 }
 
 class Sampler {
