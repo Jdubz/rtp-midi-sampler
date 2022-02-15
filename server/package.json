@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "test",
-    "start": "nodemon --watch src src/index.js"
+    "start": "nodemon --watch src/sampler src/index.js"
   },
   "repository": {
     "type": "git",

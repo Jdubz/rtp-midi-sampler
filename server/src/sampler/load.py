@@ -1,9 +1,10 @@
 import os
+import threading
 
 from logger import info
-from sound import Sound 
+from sound import Sound
 
-def load_channel(SAMPLES_FOLDER, channel, folder, samples):
+def load_folder(SAMPLES_FOLDER, channel, folder, samples, cb=None):
     loadSamples = {}
 
     for midinote in range(0, 127):
@@ -32,7 +33,13 @@ def load_channel(SAMPLES_FOLDER, channel, folder, samples):
                     pass
 
     samples[channel] = loadSamples
+    if (cb):
+        cb()
     info('sample loader', 'channel ' + str(channel) + ': ' + folder)
+
+def load_channel(SAMPLES_FOLDER, channel, folder, samples, cb=None):
+    load = threading.Thread(target=load_folder, args=(SAMPLES_FOLDER, channel, folder, samples, cb), daemon=True)
+    load.start()
 
 def load_samples(SAMPLES_FOLDER, channels, samples):
     samples.clear()
@@ -44,4 +51,3 @@ def load_samples(SAMPLES_FOLDER, channels, samples):
             load_channel(SAMPLES_FOLDER, channel, channels[channel], samples)
 
         channel += 1
-    info('samples', 'loading finished')

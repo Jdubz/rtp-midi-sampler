@@ -91,12 +91,9 @@ def controlCallback(message):
 
     if message['id'] == 'loadSamples':
       load_samples(SAMPLES_FOLDER, message['message'], samples)
-      info('load samples 0', len(samples[0].keys()))
-      response(message['id'], 'samples loaded')
 
     if message['id'] == 'loadChannel':
-      load_channel(SAMPLES_FOLDER, message['message']['channel'], message['message']['folder'], samples)
-      response(message['id'], 'channel loaded')
+      load_channel(SAMPLES_FOLDER, message['message']['channel'], message['message']['folder'], samples, lambda: response(message['id'], 'channel loaded'))
     
     if message['id'] == 'start_audio':
       stop_audio()

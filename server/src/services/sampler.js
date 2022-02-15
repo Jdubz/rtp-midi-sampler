@@ -22,9 +22,13 @@ class Sampler {
   constructor(storage, socket) {
     this.socket = socket
     this.storage = storage
-    this.pyshell = new PythonShell('sampler.py', samplerOptions);
     this.outputDevice = 1
+    this.pendingMessages = {}
+    this.pyshell = new PythonShell('sampler.py', samplerOptions);
+    this.eventListeners();
+  }
 
+  eventListeners = async () => {
     this.pyshell.on('message', async (message) => {
       let msg
       try {
@@ -49,11 +53,10 @@ class Sampler {
       console.error('sampler error:', err)
     })
 
-    this.pyshell.on('close', () => {
-      console.log('sampler closed')
+    this.pyshell.on('close', (e) => {
+      console.log('sampler closed, restarting', e)
+      this.eventListeners();
     })
-
-    this.pendingMessages = {}
   }
 
   parseMessage = async (msg) => {
