@@ -36,11 +36,6 @@ const applyRoutes = async (app, io) => {
   app.get('/audio', audioController.getDevices)
   app.get('/audio/output', audioController.getCurrentOutput)
   app.post('/audio/output', audioController.openOutput)
-
-  process.on('exit', (code) => {
-    console.log('process exit, code: ' + code)
-    samplerService.kill()
-  })
 }
 
 module.exports = applyRoutes;

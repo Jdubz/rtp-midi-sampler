@@ -55,7 +55,16 @@ class Sampler {
 
     this.pyshell.on('close', (e) => {
       console.log('sampler closed, restarting', e)
+      this.pyshell = new PythonShell('sampler.py', samplerOptions);
       this.eventListeners();
+    })
+
+    process.once('SIGUSR2', () => {
+      this.kill()
+    })
+    process.on('exit', (code) => {
+      console.log('process exit, code: ' + code)
+      this.kill()
     })
   }
 
