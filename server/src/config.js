@@ -41,6 +41,9 @@ const applyRoutes = async (app, io) => {
     console.log('process exit, code: ' + code)
     samplerService.kill()
   })
+  process.on('SIGHUP', () => {
+    samplerService.kill()
+  })
 }
 
 module.exports = applyRoutes;
