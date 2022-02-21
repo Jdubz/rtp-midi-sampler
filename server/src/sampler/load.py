@@ -35,7 +35,7 @@ def load_folder(SAMPLES_FOLDER, channel, folder, samples, cb=None):
     samples[channel] = loadSamples
     if (cb):
         cb()
-    info('sample loader', 'channel ' + str(channel) + ': ' + folder)
+    info('samples loaded', 'channel ' + str(channel) + ': ' + folder)
 
 def load_channel(SAMPLES_FOLDER, channel, folder, samples, cb=None):
     load = threading.Thread(target=load_folder, args=(SAMPLES_FOLDER, channel, folder, samples, cb), daemon=True)

@@ -14,7 +14,7 @@ playingsounds = []
 global_volume = 10 ** (-12.0/20)  # -12dB default global volume
 samples = []
 while len(samples) < 16:
-  samples.append({})
+  samples.append(None)
 midi_handler = Midi_Handler()
 outStream = None
 audio_device = 0
