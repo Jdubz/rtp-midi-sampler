@@ -3,7 +3,8 @@ const MidiService = require('./services/midi/midi');
 const RtpService = require('./services/midi/rtpmidi');
 const SamplesService = require('./services/samples');
 const Storage = require('./services/storage');
-const Socket = require('./services/midi/socket');
+const Socket = require('./services/socket');
+const Router = require('./services/midi/router');
 
 const SamplesController = require('./controllers/samples');
 const SamplerController = require('./controllers/sampler');
@@ -18,7 +19,9 @@ const applyRoutes = async (app, io) => {
   const samplerService = new SamplerService(storage, socket);
   const midiService = new MidiService(samplerService.sendMidi, storage, samplerService);
   await midiService.init();
+  // TODO make name & port configurable
   const rtpService = new RtpService('Sampler', 5051, samplerService.sendMidi);
+  const midiRouter = new Router();
 
   const samplesController = new SamplesController(samplesService);
   const samplerController = new SamplerController(samplerService);
