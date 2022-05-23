@@ -55,5 +55,10 @@
   "bugs": {
     "url": "https://github.com/Jdubz/SamplerBox/issues"
   },
-  "homepage": "/"
+  "homepage": "/",
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-react": "^7.28.0"
+  }
 }

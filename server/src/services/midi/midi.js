@@ -123,6 +123,7 @@ class Midi {
     const newDevice = { ...device, open: !device.open };
     delete newDevice.index;
     const numRows = await this.storage.update('midiDevice', { name: device.name }, newDevice);
+    console.log(numRows);
     if (!numRows) throw new Error('no midi device of name ', device.name);
     return { ...device, open: !device.open };
   }

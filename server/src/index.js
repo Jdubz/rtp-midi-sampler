@@ -12,6 +12,7 @@ const io = Socketio(server, {
   },
 });
 
+const errorHandler = require('./middleware/errors');
 const requestLogger = require('./middleware/logger');
 const config = require('./config');
 
@@ -19,6 +20,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(requestLogger);
 app.use(express.static('../build'));
+app.use(errorHandler);
 
 config(app, io);
 

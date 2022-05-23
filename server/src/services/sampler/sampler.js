@@ -153,11 +153,13 @@ class Sampler {
       type,
     }));
     // TODO guarantee no id overwrites
+    // TODO timeout and error rejects
     return new Promise((resolve) => {
       if (id) {
         this.pendingMessages[id] = resolve;
+      } else {
+        resolve();
       }
-      resolve();
     });
   }
 
